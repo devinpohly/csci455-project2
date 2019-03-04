@@ -1,4 +1,4 @@
-% KFC: Kernel-Free Concurrency
+# KFC: Kernel-Free Concurrency
 
 These notes are in the process of being converted into a nicer format.
 However, they are complete enough at this point to be able to finish the
@@ -11,7 +11,7 @@ requested at initialization.  Your interaction with kernel threads will be by
 calling the `kthread` functions listed in `kthread.h`.
 
 
-# Getting started
+## Getting started
 
 Important note: *do not fork this repository through the GitHub UI.*  GitHub
 apparently will not allow a public repo thus forked to be made private.
@@ -29,7 +29,7 @@ changes from my repository using:
 
     $ git pull upstream master
 
-## Project files
+### Project files
 
 - `kfc.h` and `kfc.c`: this is where all of your work will go.  The header file
   defines the API that your KFC library provides, and the C file initially
@@ -44,16 +44,17 @@ changes from my repository using:
 - A Makefile where you can tweak compile options if desired.
 
 
-# Notes/hints
+## Notes/hints
 
 - Make sure you always understand why you get a warning, or what you are doing
-  to stop the warning.  I would encourage turning on -Werror at some point.
-  You can selectively un-error certain warnings with -Wno-error=<error name>.
+  to stop the warning.  I would encourage turning on `-Werror` at some point.
+  You can selectively un-error certain warnings with
+  `-Wno-error=`*warning-name*.
 
 - Make checking return values a matter of habit.  Write the error check the
   first time you write the code.  Use `perror()` liberally.  If it makes sense
   to do so, propagate the error upward to the program which called your
-  function by setting errno and returning nonzero.  For internal errors or
+  function by setting `errno` and returning nonzero.  For internal errors or
   "should not happen" conditions, which likely indicate a bug in your
   implementation, feel free to use `assert()` and `abort()`.
 
@@ -62,9 +63,9 @@ changes from my repository using:
   information is written to the unbuffered stderr stream, but also allow both
   you and me to turn off debug printing for the purposes of testing/grading.
 
-- Get to know the four functions from ucontext.h (man ucontext.h) and what
-  features they have.  This will save you from wasting time reinventing the
-  provided functionality.
+- Get to know the four ucontext functions (`man ucontext.h`) and what features
+  they have.  This will save you from wasting time reinventing the provided
+  functionality.
 
 - If you would like to use Valgrind to help catch problems early, you need to
   inform it whenever you allocate memory that will be used as a stack;
@@ -77,15 +78,15 @@ changes from my repository using:
       VALGRIND_STACK_REGISTER(stackmem, stackmem + len);
 
 
-# Steps/tests
+## Steps/tests
 
-## test-create
+### test-create
 
-Implement kfc_create simplistically to start, so that it runs the thread to
+Implement `kfc_create` simplistically to start, so that it runs the thread to
 completion before returning.  However, instead of calling the thread main
 function directly, use the ucontext functions to run it in its own context.
 When the thread context returns, execution should resume from where the calling
-context left off in kfc_create.  (This should not require a lot of code once
+context left off in `kfc_create`.  (This should not require a lot of code once
 you understand ucontext.)  Allocate space for the stack if none is provided,
 and pass the provided argument on to the thread function.  Note: yes, it will
 be necessary to type-cast a function pointer here, but don't make a habit of
@@ -96,7 +97,7 @@ with (i.e. `kfc_init(1, 0)`), so you do not need to implement support for
 additional kernel threads until later, and you will only need to consider
 preemption if you do the bonus challenge.
 
-## test-self
+### test-self
 
 Update `kfc_create` so that each thread is assigned an integer thread ID upon
 creation, and make sure this is returned via the `ptid` parameter.  Implement
@@ -105,7 +106,7 @@ The main thread gets ID 0.  (Hint: keep track of the currently executing
 thread!  Be sure it gets updated when switching context or when a thread
 exits.)
 
-## test-fcfs
+### test-fcfs
 
 Update your code so that, instead of returning to the "parent" when a thread
 exits, the next thread to run is chosen by an FCFS policy.  A small queue
@@ -122,7 +123,7 @@ test-self.  This is expected.  (Reason, for the curious: when the main thread
 returns, the process terminates and any remaining threads do not have a chance
 to complete.)  They will be fixed in the next step.
 
-## test-yield
+### test-yield
 
 Implement the `kfc_yield` function to enable cooperative multiprogramming.
 When a thread calls `kfc_yield`, your code should pass control to the ready
@@ -131,7 +132,7 @@ If no other thread is ready, control will return to the caller.  If this does
 not end up being a particularly simple function, this would be a good time to
 think about refactoring or asking for a hint on simplifying your approach.
 
-## test-exit
+### test-exit
 
 Implement the `kfc_exit` function, which should terminate the calling thread
 and schedule the next thread in FCFS order.  Returning from the thread main
@@ -139,7 +140,7 @@ function should be equivalent to calling `kfc_exit` and passing it the value
 returned by the function.  Again, this will end up being a simple function if
 your design is in good shape; if not, ask for some direction.
 
-## test-join
+### test-join
 
 Implement the `kfc_join` function, which retrieves the value returned by the
 specified thread when it exited.  If the given thread is still running, the
@@ -149,14 +150,14 @@ possible to join a thread once.  If the specified thread already has another
 thread waiting to join it, `kfc_join` should return an error.  Don't worry
 about deadlock.
 
-## test-sem
+### test-sem
 
 Implement semaphores.  These should be blocking semaphores that behave like the
 implementation given in the textbook.  Note, however, that if a wait operation
-on a `kfc_sem_t` needs to block, it should block the *user* thread, not the
-kernel thread.
+on a `kfc_sem_t` needs to block, it should block only the *user* thread, not
+the kernel thread.
 
-## test-m2m
+### test-m2m
 
 Time to start using that first parameter to `kfc_init`.  Add support for multiple
 kernel threads (many-to-many threading model) to the KFC library.  Up to this
@@ -178,9 +179,9 @@ For the simplest implementation, you will want to use the following approach:
   similarity nevertheless.)
 
 
-# Bonus challenge
+## Bonus challenge
 
-## test-preempt
+### test-preempt
 
 Time to start using that second parameter to `kfc_init`.  Add preemption to
 turn your library into a round-robin scheduler instead of FCFS.  This step will
@@ -191,6 +192,8 @@ specific (k)thread after a given time interval elapses, using
 `SIGEV_THREAD_ID`.  I put a lot of effort into ensuring that the return value
 of `kthread_self` is exactly what you need to use as a thread ID when
 specifying the target thread.
+
+If you want help digging through the related man pages, feel free to ask.
 
 (Alternatives would be to use the `ualarm` or `setitimer` functions, which
 allow you to deliver a signal to a *process*.  However, as we saw in class, it
