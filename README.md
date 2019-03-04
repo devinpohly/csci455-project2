@@ -89,7 +89,9 @@ Each step comes with a test program that should output "success!" when it is
 done.  Additional tests or updates to the existing ones will likely be added
 later.
 
-### test-create
+Points for each step are given, with a total of 80.
+
+### test-create (10pts)
 
 Implement `kfc_create` simplistically to start, so that it runs the thread to
 completion before returning.  However, instead of calling the thread main
@@ -106,7 +108,7 @@ with (i.e. `kfc_init(1, 0)`), so you do not need to implement support for
 additional kernel threads until later, and you will only need to consider
 preemption if you do the bonus challenge.
 
-### test-self
+### test-self (10pts)
 
 Update `kfc_create` so that each thread is assigned an integer thread ID upon
 creation, and make sure this is returned via the `ptid` parameter.  Implement
@@ -115,7 +117,7 @@ The main thread gets ID 0.  (Hint: keep track of the currently executing
 thread!  Be sure it gets updated when switching context or when a thread
 exits.)
 
-### test-fcfs
+### test-fcfs (10pts)
 
 Update your code so that, instead of returning to the "parent" when a thread
 exits, the next thread to run is chosen by an FCFS policy.  A small queue
@@ -132,7 +134,7 @@ test-self.  This is expected.  (Reason, for the curious: when the main thread
 returns, the process terminates and any remaining threads do not have a chance
 to complete.)  They will be fixed in the next step.
 
-### test-yield
+### test-yield (10pts)
 
 Implement the `kfc_yield` function to enable cooperative multiprogramming.
 When a thread calls `kfc_yield`, your code should pass control to the ready
@@ -141,7 +143,7 @@ If no other thread is ready, control will return to the caller.  If this does
 not end up being a particularly simple function, this would be a good time to
 think about refactoring or asking for a hint on simplifying your approach.
 
-### test-exit
+### test-exit (5pts)
 
 Implement the `kfc_exit` function, which should terminate the calling thread
 and schedule the next thread in FCFS order.  Returning from the thread main
@@ -149,7 +151,7 @@ function should be equivalent to calling `kfc_exit` and passing it the value
 returned by the function.  Again, this will end up being a simple function if
 your design is in good shape; if not, ask for some direction.
 
-### test-join
+### test-join (5pts)
 
 Implement the `kfc_join` function, which retrieves the value returned by the
 specified thread when it exited.  If the given thread is still running, the
@@ -159,14 +161,14 @@ possible to join a thread once.  If the specified thread already has another
 thread waiting to join it, `kfc_join` should return an error.  Don't worry
 about deadlock.
 
-### test-sem
+### test-sem (15pts)
 
 Implement semaphores.  These should be blocking semaphores that behave like the
 implementation given in the textbook.  Note, however, that if a wait operation
 on a `kfc_sem_t` needs to block, it should block only the *user* thread, not
 the kernel thread.
 
-### test-m2m
+### test-m2m (15pts)
 
 Time to start using that first parameter to `kfc_init`.  Add support for multiple
 kernel threads (many-to-many threading model) to the KFC library.  Up to this
@@ -208,3 +210,11 @@ If you want help digging through the related man pages, feel free to ask.
 allow you to deliver a signal to a *process*.  However, as we saw in class, it
 is not always defined as to which specific *thread* receives a signal that was
 sent to a multithreaded process.)
+
+
+## Due date and extra credit opportunity
+
+This project can be challenging but is very rewarding!  In order to make sure
+everyone has time to complete it, the project will be due March 27.  In order
+to encourage an early start, I will give 3pts extra credit to anyone who can
+show that they are passing the test-create step by this Friday, March 8.
