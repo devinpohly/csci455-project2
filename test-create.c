@@ -5,7 +5,7 @@
 #include "test.h"
 #include "kfc.h"
 
-static char stack[4096];
+static char stack[16384];
 
 static void *
 subthread_main(void *arg)
