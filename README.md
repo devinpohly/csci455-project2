@@ -10,6 +10,11 @@ many-to-many threading model, depending on the number of kernel threads
 requested at initialization.  Your interaction with kernel threads will be by
 calling the `kthread` functions listed in `kthread.h`.
 
+Since you are essentially implementing the context-switching piece of an
+operating system, you will find useful many of the concepts introduced in the
+textbook's chapters on processes and threads: process control blocks, ready
+queues and device queues, short-term scheduler vs. dispatcher, etc.
+
 
 ## Getting started
 
@@ -79,6 +84,10 @@ changes from my repository using:
 
 
 ## Steps/tests
+
+Each step comes with a test program that should output "success!" when it is
+done.  Additional tests or updates to the existing ones will likely be added
+later.
 
 ### test-create
 
