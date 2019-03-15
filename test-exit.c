@@ -5,10 +5,12 @@
 #include "test.h"
 #include "kfc.h"
 
+static int parent_first = -1;
+
 static void *
 thread2_main(void *arg)
 {
-	CHECKPOINT(2);
+	CHECKPOINT(parent_first ? 4 : 2);
 	kfc_exit(NULL);
 
 	ASSERT(0, "thread2 exit didn't");
@@ -18,11 +20,14 @@ thread2_main(void *arg)
 static void *
 thread_main(void *arg)
 {
+	if (parent_first < 0)
+		parent_first = 0;
+
 	CHECKPOINT(1);
 
 	THREAD(thread2_main);
 
-	CHECKPOINT(4);
+	CHECKPOINT(parent_first ? 2 : 4);
 	kfc_exit(NULL);
 
 	ASSERT(0, "thread exit didn't");
@@ -37,6 +42,10 @@ main(void)
 	CHECKPOINT(0);
 
 	THREAD(thread_main);
+	if (parent_first < 0) {
+		parent_first = 1;
+		kfc_yield();
+	}
 
 	CHECKPOINT(3);
 	kfc_yield();
