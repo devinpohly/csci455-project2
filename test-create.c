@@ -5,6 +5,7 @@
 #include "test.h"
 #include "kfc.h"
 
+static int parent_first = -1;
 static char stack[16384];
 
 static void *
@@ -24,12 +25,17 @@ subthread_main(void *arg)
 static void *
 thread_main(void *arg)
 {
+	if (parent_first < 0)
+		parent_first = 0;
+
 	long x = (long) arg;
 	CHECKPOINT(1);
 
 	ASSERT(x == 42, "argument 42 was not passed");
 
 	THREAD_ARG_STACK(subthread_main, (void *) 73, stack, sizeof(stack));
+	if (parent_first)
+		kfc_yield();
 
 	ASSERT(x == 42, "argument 42 was changed");
 
@@ -45,6 +51,10 @@ main(void)
 	CHECKPOINT(0);
 
 	THREAD_ARG(thread_main, (void *) 42);
+	if (parent_first < 0) {
+		parent_first = 1;
+		kfc_yield();
+	}
 
 	// Preserve correct behavior once thread switching is implemented
 	kfc_yield();
