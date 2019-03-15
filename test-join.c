@@ -58,6 +58,7 @@ main(void)
 	CHECKPOINT(0);
 
 	tid_t tid = THREAD(thread_main);
+	kfc_yield();
 
 	CHECKPOINT(2);
 
@@ -73,6 +74,7 @@ main(void)
 	CHECKPOINT(6);
 
 	tid = THREAD(thread2_main);
+	kfc_yield();
 
 	CHECKPOINT(8);
 	kfc_yield();
@@ -83,6 +85,7 @@ main(void)
 	ASSERT(ret == &othervar, "didn't get thread 2 return");
 
 	tid = THREAD(thread3_main);
+	kfc_yield();
 
 	kfc_join(tid, &ret);
 
