@@ -143,6 +143,12 @@ If no other thread is ready, control will return to the caller.  If this does
 not end up being a particularly simple function, this would be a good time to
 think about refactoring or asking for a hint on simplifying your approach.
 
+#### test-yield2
+
+Speaking of simplifying code, update the `kfc_create` function so that new
+threads are not immediately activated but take their rightful place at the back
+of the line.
+
 ### test-exit (5pts)
 
 Implement the `kfc_exit` function, which should terminate the calling thread
@@ -150,6 +156,12 @@ and schedule the next thread in FCFS order.  Returning from the thread main
 function should be equivalent to calling `kfc_exit` and passing it the value
 returned by the function.  Again, this will end up being a simple function if
 your design is in good shape; if not, ask for some direction.
+
+If `kfc_exit` is called from the process's initial main thread, the other
+threads should continue to run until the process exits explicitly with a call
+to `exit`, which the OS will handle for you.  (This is the same way that
+`pthread_exit` would behave for kernel threads, plus it's the easiest approach
+to implement.)
 
 ### test-join (5pts)
 
