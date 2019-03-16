@@ -4,8 +4,8 @@ CFLAGS = -std=gnu99 -Wall -ggdb -Wno-unused-value
 #CFLAGS += -Werror
 
 # Change this to run tests with Valgrind (encouraged!)
-#VALGRIND =
-VALGRIND = valgrind --suppressions=$(VGSUPP) --error-exitcode=2 --errors-for-leak-kinds=all
+VALGRIND =
+#VALGRIND = valgrind --suppressions=$(VGSUPP) --error-exitcode=2 --errors-for-leak-kinds=all
 
 VGSUPP = /dev/null
 
