@@ -30,8 +30,8 @@ int kfc_create(tid_t *ptid, void *(*start_func)(void *), void *arg,
 		caddr_t stack_base, size_t stack_size);
 void kfc_exit(void *ret);
 int kfc_join(tid_t tid, void **pret);
-tid_t kfc_self();
-void kfc_yield();
+tid_t kfc_self(void);
+void kfc_yield(void);
 
 int kfc_sem_init(kfc_sem_t *sem, int value);
 int kfc_sem_post(kfc_sem_t *sem);

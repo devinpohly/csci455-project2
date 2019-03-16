@@ -70,7 +70,7 @@ kfc_join(tid_t tid, void **pret)
  * @return Thread ID of the currently executing thread
  */
 tid_t
-kfc_self()
+kfc_self(void)
 {
 	assert(inited);
 
@@ -83,7 +83,7 @@ kfc_self()
  * possibility of the same caller continuing if re-chosen by the scheduler.
  */
 void
-kfc_yield()
+kfc_yield(void)
 {
 	assert(inited);
 }
