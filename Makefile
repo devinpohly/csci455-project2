@@ -11,7 +11,7 @@ VGSUPP = /dev/null
 
 LIBS = queue.o kfc.o kthread.o
 TESTS_LENIENT = create self fcfs yield yield2 exit
-TESTS = $(TESTS_LENIENT) join sem
+TESTS = $(TESTS_LENIENT) join sem sem2
 BINS = $(addprefix test-,$(TESTS))
 OBJS = $(addsuffix .o,$(BINS))
 

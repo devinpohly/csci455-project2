@@ -176,7 +176,7 @@ possible to join a thread once.  If the specified thread already has another
 thread waiting to join it, `kfc_join` should return an error.  Don't worry
 about deadlock.
 
-### test-sem (15pts)
+### test-sem\* (15pts)
 
 Implement semaphores.  These should be blocking semaphores that behave like the
 implementation given in the textbook.  Note, however, that if a wait operation
