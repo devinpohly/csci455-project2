@@ -73,15 +73,18 @@ changes from my repository using:
   functionality.
 
 - If you would like to use Valgrind to help catch problems early, you need to
-  inform it whenever you allocate memory that will be used as a stack;
-  otherwise, Valgrind will get a bit confused when you switch context.  The fix
-  is very straightforward:
+  inform it of any memory that will be used as a stack; otherwise, Valgrind
+  will get a bit confused when you switch context.  I've added Valgrind's
+  header file to this repository, and the fix is very straightforward:
 
-      #include <valgrind/valgrind.h>
-      // ... then later, when allocating stack memory:
+      #include "valgrind.h"
+      // Whenever you allocate stack memory...
       stackmem = malloc(len);
+      // ... add the following line to register it:
       VALGRIND_STACK_REGISTER(stackmem, stackmem + len);
 
+  (You can see another example in `test-create.c`, in that case for
+  statically-allocated stack memory.)
 
 ## Steps/tests
 

@@ -2,11 +2,14 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "valgrind.h"
 #include "test.h"
 #include "kfc.h"
 
+#define TEST_STACK_SZ 16384
+
 static int parent_first = -1;
-static char stack[16384];
+static char stack[TEST_STACK_SZ];
 
 static void *
 subthread_main(void *arg)
@@ -15,7 +18,7 @@ subthread_main(void *arg)
 	CHECKPOINT(2);
 
 	ASSERT(x == 73, "argument 73 was not passed");
-	ASSERT((char *) &x >= stack && (char *) &x < stack + sizeof(stack),
+	ASSERT((char *) &x >= stack && (char *) &x < stack + TEST_STACK_SZ,
 		"local x not in provided stack");
 
 	CHECKPOINT(3);
@@ -33,7 +36,7 @@ thread_main(void *arg)
 
 	ASSERT(x == 42, "argument 42 was not passed");
 
-	THREAD_ARG_STACK(subthread_main, (void *) 73, stack, sizeof(stack));
+	THREAD_ARG_STACK(subthread_main, (void *) 73, stack, TEST_STACK_SZ);
 	if (parent_first)
 		kfc_yield();
 
@@ -46,6 +49,8 @@ thread_main(void *arg)
 int
 main(void)
 {
+	VALGRIND_STACK_REGISTER(stack, TEST_STACK_SZ);
+
 	INIT(1, 0);
 
 	CHECKPOINT(0);
