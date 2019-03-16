@@ -25,6 +25,7 @@ typedef struct {
  * Public interface
  **************************/
 int kfc_init(int kthreads, int quantum_us);
+void kfc_teardown(void);
 
 int kfc_create(tid_t *ptid, void *(*start_func)(void *), void *arg,
 		caddr_t stack_base, size_t stack_size);

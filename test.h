@@ -43,6 +43,8 @@ ASSERT(int cond, char *text)
 static inline void
 VERIFY(int n)
 {
+	kfc_teardown();
+
 	if (_test_counter != n) {
 		DPRINTF("nope: hit %d checkpoints instead of %d\n",
 				_test_counter, n);

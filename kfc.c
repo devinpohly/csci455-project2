@@ -25,6 +25,25 @@ kfc_init(int kthreads, int quantum_us)
 }
 
 /**
+ * Cleans up any resources which were allocated by kfc_init.  You may assume
+ * that this function is called only from the main thread, that any other
+ * threads have terminated and been joined, and that threading will not be
+ * needed again.  (In other words, just clean up and don't worry about the
+ * consequences.)
+ *
+ * I won't test this function, since it wasn't part of the original assignment;
+ * it is provided as a convenience to you if you are using Valgrind to test
+ * (which I heartily encourage).
+ */
+void
+kfc_teardown(void)
+{
+	assert(inited);
+
+	inited = 0;
+}
+
+/**
  * Creates a new user thread which executes the provided function concurrently.
  * It is left up to the implementation to decide whether the calling thread
  * continues to execute or the new thread takes over immediately.
