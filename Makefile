@@ -4,7 +4,7 @@ CFLAGS = -std=gnu99 -Wall -ggdb
 #CFLAGS += -Werror
 
 LIBS = queue.o kfc.o kthread.o
-TESTS = create self fcfs yield yield2 exit join
+TESTS = create self fcfs yield yield2 exit join sem
 BINS = $(addprefix test-,$(TESTS))
 OBJS = $(addsuffix .o,$(BINS))
 
