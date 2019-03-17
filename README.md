@@ -92,6 +92,10 @@ Each step comes with a test program that should output "success!" when it is
 done.  Additional tests or updates to the existing ones will likely be added
 later.
 
+You can run all of the tests in order by using the `test` target from the
+Makefile (i.e.  `make test`).  The `vtest` target will run the same tests in
+Valgrind.  Each of these targets will stop at the first test which fails.
+
 Points for each step are given, with a total of 80.
 
 ### test-create (10pts)
@@ -105,6 +109,10 @@ you understand ucontext.)  Allocate space for the stack if none is provided,
 and pass the provided argument on to the thread function.  Note: yes, it will
 be necessary to type-cast a function pointer here, but don't make a habit of
 it!
+
+When the test succeeds, it will print the text `success!`.  If you do not see
+this message, then the process exited prior to successfully completing the
+test.
 
 Note: You will only be doing cooperative, many-to-one multithreading to start
 with (i.e. `kfc_init(1, 0)`), so you do not need to implement support for
