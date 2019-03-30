@@ -212,6 +212,15 @@ For the simplest implementation, you will want to use the following approach:
   there are not multiple ready queues, but it may be helpful to note the
   similarity nevertheless.)
 
+#### test-m2m-pc
+
+Here's a bounded buffer implementation using KFC.  It should hit 100000
+different checkpoints.  You can check that all the lines are unique with:
+
+    $ ./test-m2m-pc |& sort -u | wc -l
+    100001
+
+(100001 lines: 100000 checkpoints plus the success message)
 
 ## Bonus challenge
 

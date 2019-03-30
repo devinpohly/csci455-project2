@@ -6,13 +6,15 @@ CFLAGS = -std=gnu99 -Wall -ggdb -Wno-unused-value
 # "Lenient" tests run with Valgrind suppressions to ignore memory that will be
 # freed by functions not yet implemented.
 TESTS_LENIENT = create self fcfs yield yield2 exit
+TESTS_NOVG = m2m
 
 # List of all tests
-TESTS = $(TESTS_LENIENT) join sem sem2 sem3
+TESTS = $(TESTS_LENIENT) join sem sem2 sem3 $(TESTS_NOVG) m2m-pc
 
 # Test-related targets and lists
 RUN_TESTS = $(addprefix run-test-,$(TESTS))
 RUN_TESTS_LENIENT = $(addprefix run-test-,$(TESTS_LENIENT))
+RUN_TESTS_NOVG = $(addprefix run-test-,$(TESTS_NOVG))
 
 # Build products
 BINS = $(addprefix test-,$(TESTS))
@@ -39,6 +41,8 @@ vtest: VALGRIND = valgrind --suppressions=$(VGSUPP) --error-exitcode=2 --errors-
 
 $(RUN_TESTS): run-test-%: test-%
 	$(VALGRIND) ./$^
+
+$(RUN_TESTS_NOVG): VALGRIND =
 
 # Additional suppressions file when running lenient tests
 $(RUN_TESTS_LENIENT): VGSUPP = valgrind.supp

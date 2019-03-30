@@ -5,9 +5,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <pthread.h>
 
 #include "kfc.h"
 
+static pthread_mutex_t _test_lock = PTHREAD_MUTEX_INITIALIZER;
 static int _test_counter = 0;
 static int _test_nope = 0;
 
@@ -23,12 +25,23 @@ INIT(int nthreads, int quantum_us)
 static inline void
 CHECKPOINT(int n)
 {
-	if (_test_counter != n) {
+	pthread_mutex_lock(&_test_lock);
+	int nope = _test_counter++ != n;
+	pthread_mutex_unlock(&_test_lock);
+	if (nope) {
 		_test_nope++;
 		DPRINTF("nope: ");
 	}
 	DPRINTF("checkpoint %d\n", n);
+}
+
+static inline void
+CHECKPOINT_UNORDERED(int n)
+{
+	pthread_mutex_lock(&_test_lock);
 	_test_counter++;
+	pthread_mutex_unlock(&_test_lock);
+	DPRINTF("checkpoint %d (unordered)\n", n);
 }
 
 static inline void
@@ -45,7 +58,10 @@ VERIFY(int n)
 {
 	kfc_teardown();
 
-	if (_test_counter != n) {
+	pthread_mutex_lock(&_test_lock);
+	int nope = _test_counter != n;
+	pthread_mutex_unlock(&_test_lock);
+	if (nope) {
 		DPRINTF("nope: hit %d checkpoints instead of %d\n",
 				_test_counter, n);
 		_test_nope++;
