@@ -74,7 +74,6 @@ kthread_trampoline(void *arg)
 	}
 
 	*args->ptid = id;
-	pthread_detach(pthread_self());
 
 	sem_post(&args->sem);
 	return start(start_arg);
