@@ -18,6 +18,8 @@ struct kthread_info {
 static struct kthread_info kthreads[MAX_KTHREADS];
 static pthread_mutex_t kthreads_lock = PTHREAD_MUTEX_INITIALIZER;
 
+static int inited;
+
 static struct kthread_info *
 tidmap_find_tid(kthread_t tid)
 {
@@ -82,6 +84,11 @@ kthread_trampoline(void *arg)
 int
 kthread_create(kthread_t *ptid, void *(*start)(void *), void *arg)
 {
+	if (!inited) {
+		tidmap_add_self();
+		inited = 1;
+	}
+
 	struct trampoline_args args;
 	sem_init(&args.sem, 0, 0);
 	args.start = start;
