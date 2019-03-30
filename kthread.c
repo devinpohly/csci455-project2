@@ -102,6 +102,7 @@ kthread_create(kthread_t *ptid, void *(*start)(void *), void *arg)
 	}
 
 	sem_wait(&args.sem);
+	sem_destroy(&args.sem);
 	if (args.error) {
 		errno = args.error;
 		return -1;
