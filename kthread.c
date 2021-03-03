@@ -119,6 +119,7 @@ kthread_exit()
 int
 kthread_join(kthread_t tid, void **pret) {
 	int rv;
+	pthread_t thread;
 
 	pthread_mutex_lock(&kthreads_lock);
 	struct kthread_info *entry = tidmap_find_tid(tid);
@@ -127,11 +128,10 @@ kthread_join(kthread_t tid, void **pret) {
 		errno = ESRCH;
 		return -1;
 	}
+	thread = entry->thread;
 	pthread_mutex_unlock(&kthreads_lock);
 
-	// Access to entry->thread should be safe without the lock, since this
-	// field is only changed if ->tid is 0, and that only happens below.
-	rv = pthread_join(entry->thread, pret);
+	rv = pthread_join(thread, pret);
 	if (rv)
 		return rv;
 
