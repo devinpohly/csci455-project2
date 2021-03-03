@@ -53,6 +53,12 @@ changes from my repository using:
 
 ## Notes/hints
 
+- Some of the function specifications mention "undefined behavior."  Undefined
+  behavior means that a conforming implementation is permitted to do *anything*
+  in that case, including misbehaving, crashing, deleting system32, or
+  microwaving your poodle.  Practically speaking, it means you may write your
+  code under the assumption that the given scenario will never happen.
+
 - Make sure you always understand why you get a warning, or what you are doing
   to stop the warning.  I would encourage turning on `-Werror` at some point.
   You can selectively un-error certain warnings with
@@ -185,9 +191,6 @@ which is blocking should not be place in the ready queue until the event it is
 waiting for has taken place.  In other words, calling `kfc_yield` in a `while`
 loop is not blocking.  (Hint: you will need to modify `kfc_exit` to do this
 correctly.)
-
-It is only possible to join a thread once, so if the specified thread already
-has another thread waiting to join it, `kfc_join` should return an error.
 
 ### test-sem\* (15pts)
 

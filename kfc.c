@@ -69,12 +69,31 @@ kfc_create(tid_t *ptid, void *(*start_func)(void *), void *arg,
 	return 0;
 }
 
+/**
+ * Exits the calling thread.  This should be the same thing that happens when
+ * the thread's start_func returns.
+ *
+ * @param ret  Return value from the thread
+ */
 void
 kfc_exit(void *ret)
 {
 	assert(inited);
 }
 
+/**
+ * Waits for the thread specified by tid to terminate, retrieving that threads
+ * return value.  Returns immediately if the target thread has already
+ * terminated, otherwise blocks.  Attempting to join a thread which already has
+ * another thread waiting to join it, or attempting to join a thread which has
+ * already been joined, results in undefined behavior.
+ *
+ * @param pret[out]  Pointer to a void * in which the thread's return value from
+ *                   kfc_exit should be stored, or NULL if the caller does not
+ *                   care.
+ *
+ * @return 0 if successful, nonzero on failure
+ */
 int
 kfc_join(tid_t tid, void **pret)
 {
@@ -97,9 +116,10 @@ kfc_self(void)
 }
 
 /**
- * Causes the calling thread to yield the processor voluntarily.  This may often
+ * Causes the calling thread to yield the processor voluntarily.  This may
  * result in another thread being scheduled, but it does not preclude the
- * possibility of the same caller continuing if re-chosen by the scheduler.
+ * possibility of the same thread continuing if re-chosen by the scheduling
+ * algorithm.
  */
 void
 kfc_yield(void)
@@ -107,6 +127,14 @@ kfc_yield(void)
 	assert(inited);
 }
 
+/**
+ * Initializes a user-level counting semaphore with a specific value.
+ *
+ * @param sem    Pointer to the semaphore to be initialized
+ * @param value  Initial value for the semaphore's counter
+ *
+ * @return 0 if successful, nonzero on failure
+ */
 int
 kfc_sem_init(kfc_sem_t *sem, int value)
 {
@@ -114,6 +142,14 @@ kfc_sem_init(kfc_sem_t *sem, int value)
 	return 0;
 }
 
+/**
+ * Increments the value of the semaphore.  This operation is also known as
+ * up, signal, release, and V (Dutch verhoog, "increase").
+ *
+ * @param sem  Pointer to the semaphore which the thread is releasing
+ *
+ * @return 0 if successful, nonzero on failure
+ */
 int
 kfc_sem_post(kfc_sem_t *sem)
 {
@@ -121,6 +157,15 @@ kfc_sem_post(kfc_sem_t *sem)
 	return 0;
 }
 
+/**
+ * Attempts to decrement the value of the semaphore.  This operation is also
+ * known as down, acquire, and P (Dutch probeer, "try").  This operation should
+ * block when the counter is not above 0.
+ *
+ * @param sem  Pointer to the semaphore which the thread wishes to acquire
+ *
+ * @return 0 if successful, nonzero on failure
+ */
 int
 kfc_sem_wait(kfc_sem_t *sem)
 {
@@ -128,6 +173,12 @@ kfc_sem_wait(kfc_sem_t *sem)
 	return 0;
 }
 
+/**
+ * Frees any resources associated with a semaphore.  Destroying a semaphore on
+ * which threads are waiting results in undefined behavior.
+ *
+ * @param sem  Pointer to the semaphore to be destroyed
+ */
 void
 kfc_sem_destroy(kfc_sem_t *sem)
 {
