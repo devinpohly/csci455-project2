@@ -13,7 +13,9 @@ calling the `kthread` functions listed in `kthread.h`.
 Since you are essentially implementing the context-switching piece of an
 operating system, you will find useful many of the concepts introduced in the
 textbook's chapters on processes and threads: process control blocks, ready
-queues and device queues, short-term scheduler vs. dispatcher, etc.
+queues and device queues, short-term scheduler vs. dispatcher, etc.  You do
+*not* need to worry about preventing or detecting deadlock between your
+threads.
 
 
 ## Getting started
@@ -154,7 +156,7 @@ If no other thread is ready, control will return to the caller.  If this does
 not end up being a particularly simple function, this would be a good time to
 think about refactoring or asking for a hint on simplifying your approach.
 
-#### test-yield2
+#### test-yield2 (5pts)
 
 Speaking of simplifying code, update the `kfc_create` function so that new
 threads are not immediately activated but take their rightful place at the back
@@ -177,21 +179,23 @@ to implement.)
 ### test-join (5pts)
 
 Implement the `kfc_join` function, which retrieves the value returned by the
-specified thread when it exited.  If the given thread is still running, the
-caller should block until that thread exits.  (Hint: you will need to modify
-`kfc_exit` as well.)  Joining a thread cleans up its resources, so it is only
-possible to join a thread once.  If the specified thread already has another
-thread waiting to join it, `kfc_join` should return an error.  Don't worry
-about deadlock.
+specified thread when it exited and cleans up the thread's resources, and
+*blocks* if that thread is still running.  Remember that a thread or process
+which is blocking should not be place in the ready queue until the event it is
+waiting for has taken place.  In other words, calling `kfc_yield` in a `while`
+loop is not blocking.  (Hint: you will need to modify `kfc_exit` to do this
+correctly.)
+
+It is only possible to join a thread once, so if the specified thread already
+has another thread waiting to join it, `kfc_join` should return an error.
 
 ### test-sem\* (15pts)
 
-Implement semaphores.  These should be blocking semaphores that behave like the
-implementation given in the textbook.  Note, however, that if a wait operation
-on a `kfc_sem_t` needs to block, it should block only the *user* thread, not
-the kernel thread.
+Implement semaphores.  These should behave like the implementation given in the
+textbook: if the thread needs to wait, it should block as with `kfc_join`.
+Note that this should block only the *user* thread, not the kernel thread!
 
-### test-m2m (15pts)
+### test-m2m (5pts)
 
 Time to start using that first parameter to `kfc_init`.  Add support for multiple
 kernel threads (many-to-many threading model) to the KFC library.  Up to this
@@ -212,7 +216,7 @@ For the simplest implementation, you will want to use the following approach:
   there are not multiple ready queues, but it may be helpful to note the
   similarity nevertheless.)
 
-#### test-m2m-pc
+#### test-m2m-pc (5pts)
 
 Here's a bounded buffer implementation using KFC.  It should hit 100000
 different checkpoints.  You can check that all the lines are unique with:
@@ -247,6 +251,6 @@ sent to a multithreaded process.)
 ## Due date and extra credit opportunity
 
 This project can be challenging but is very rewarding!  In order to make sure
-everyone has time to complete it, the project will be due March 27.  In order
+there is ample time to complete it, the project will be due April 7.  In order
 to encourage an early start, I will give 3pts extra credit to anyone who can
-show that they are passing the test-create step by this Friday, March 8.
+show me that they are passing the test-create step by this Monday, March 8.
