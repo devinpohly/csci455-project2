@@ -123,8 +123,8 @@ kthread_join(kthread_t tid, void **pret) {
 	pthread_mutex_lock(&kthreads_lock);
 	struct kthread_info *entry = tidmap_find_tid(tid);
 	if (!entry) {
-		errno = ESRCH;
 		pthread_mutex_unlock(&kthreads_lock);
+		errno = ESRCH;
 		return -1;
 	}
 	pthread_mutex_unlock(&kthreads_lock);
