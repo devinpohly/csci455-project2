@@ -256,4 +256,4 @@ sent to a multithreaded process.)
 This project can be challenging but is very rewarding!  In order to make sure
 there is ample time to complete it, the project will be due April 7.  In order
 to encourage an early start, I will give 3pts extra credit to anyone who can
-show me that they are passing the test-create step by this Monday, March 8.
+show me that they are passing the test-create step by this Wednesday, March 10.
