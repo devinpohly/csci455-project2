@@ -1,8 +1,12 @@
-# KFC: Kernel-Free Concurrency
-
-These notes are in the process of being converted into a nicer format.
-However, they are complete enough at this point to be able to finish the
-project.
+---
+title: "KFC: Kernel-Free Concurrency"
+author: Devin J. Pohly
+geometry:
+  - margin=1in
+header-includes: |
+    \usepackage[pandoc]{djp}
+    \input{coursedefs}
+...
 
 In this project you will be implementing a library called KFC (for Kernel-Free
 Concurrency).  This library provides the userspace portion of a many-to-one or
@@ -18,25 +22,25 @@ queues and device queues, short-term scheduler vs. dispatcher, etc.  You do
 threads.
 
 
-## Getting started
+# Getting started
 
 Important note: *do not fork this repository through the GitHub UI.*  GitHub
 apparently will not allow a public repo thus forked to be made private.
 Instead, create your own private repository (don't initialize with a README),
-then clone mine to wherever you would like to work, and push to yours:
+then clone mine to a local computer, and push from there to yours:
 
-    $ git clone -o upstream https://github.com/devinpohly/csci455-project2.git
+    $ git clone -o upstream https://github.com:devinpohly/csci455-project2.git
     $ cd csci455-project2
-    $ git remote add origin https://github.com/your-username/your-repo-name.git
-    $ git push -u origin master
+    $ git remote add origin git@github.com:your-username/your-repo-name.git
+    $ git push -u origin main
 
 (The last two lines are also found on the GitHub quick setup page that appeared
 when you created your own repository.)  At any later time, you can merge in
 changes from my repository using:
 
-    $ git pull upstream master
+    $ git pull upstream main
 
-### Project files
+## Project files
 
 - `kfc.h` and `kfc.c`: this is where all of your work will go.  The header file
   defines the API that your KFC library provides, and the C file initially
@@ -51,7 +55,7 @@ changes from my repository using:
 - A Makefile where you can tweak compile options if desired.
 
 
-## Notes/hints
+# Notes/hints
 
 - Some of the function specifications mention "undefined behavior."  Undefined
   behavior means that a conforming implementation is permitted to do *anything*
@@ -61,7 +65,7 @@ changes from my repository using:
 
 - Make sure you always understand why you get a warning, or what you are doing
   to stop the warning.  I would encourage turning on `-Werror` at some point.
-  You can selectively un-error certain warnings with
+  You can selectively un-error-ify certain warnings with
   `-Wno-error=`*warning-name*.
 
 - Make checking return values a matter of habit.  Write the error check the
@@ -69,44 +73,69 @@ changes from my repository using:
   to do so, propagate the error upward to the program which called your
   function by setting `errno` and returning nonzero.  For internal errors or
   "should not happen" conditions, which likely indicate a bug in your
-  implementation, feel free to use `assert()` and `abort()`.
+  implementation, feel free to use `assert()` and/or `abort()`.
 
 - Please use the supplied `DPRINTF` macro for any debug printing.  It should
   behave exactly like `printf()`.  It will not only ensure that debugging
-  information is written to the unbuffered stderr stream, but also allow both
-  you and me to turn off debug printing for the purposes of testing/grading.
+  information is written to the unbuffered standard error stream, but also
+  allow both you and me to turn off debug printing while testing or grading.
 
 - Get to know the four ucontext functions (`man ucontext.h`) and what features
   they have.  This will save you from wasting time reinventing the provided
   functionality.
+
+- *Do not copy a `ucontext_t`*.  `ucontext_t` is a typedef for a struct type,
+  not a pointer or integer, so copying a `ucontext_t` variable or field copies
+  an entire struct.  (This fact is obscured by using a type alias, which is
+  part of the reason I tend to avoid typedefs in my own projects.)
+ 
+  For example, it may feel natural to write code like the following:
+
+  ```c
+  ucontext_t ctx;
+  ctx.uc_link = NULL;
+  makecontext(&ctx, func, 0);
+  wherever[you]->store.context = ctx;
+  ```
+
+  and yet code like this has led to some nigh-untraceable bugs in previous
+  semesters.  Instead, build, modify, and write contexts using a pointer
+  directly to where you will be storing them:
+
+  ```c
+  wherever[you]->store.context.uc_link = NULL;
+  makecontext(&wherever[you]->store.context, func, 0);
+  ```
 
 - If you would like to use Valgrind to help catch problems early, you need to
   inform it of any memory that will be used as a stack; otherwise, Valgrind
   will get a bit confused when you switch context.  I've added Valgrind's
   header file to this repository, and the fix is very straightforward:
 
-      #include "valgrind.h"
-      // Whenever you allocate stack memory...
-      stackmem = malloc(len);
-      // ... add the following line to register it:
-      VALGRIND_STACK_REGISTER(stackmem, stackmem + len);
+  ```c
+  #include "valgrind.h"
+  // Whenever you allocate stack memory...
+  stackbase = malloc(size);
+  // ... add the following line to register it:
+  VALGRIND_STACK_REGISTER(stackbase, stackbase + size);
+  ```
 
   (You can see another example in `test-create.c`, in that case for
   statically-allocated stack memory.)
 
-## Steps/tests
+# Steps/tests
 
-Each step comes with a test program that should output "success!" when it is
-done.  Additional tests or updates to the existing ones will likely be added
-later.
+Each step comes with one or more test programs that should output
+"success!"\ when run.  Additional tests or updates to the existing ones may be
+added later.
 
 You can run all of the tests in order by using the `test` target from the
-Makefile (i.e.  `make test`).  The `vtest` target will run the same tests in
+Makefile (i.e. `make test`).  The `vtest` target will run the same tests in
 Valgrind.  Each of these targets will stop at the first test which fails.
 
 Points for each step are given, with a total of 80.
 
-### test-create (10pts)
+## test-create (10pts)
 
 Implement `kfc_create` simplistically to start, so that it runs the thread to
 completion before returning.  However, instead of calling the thread main
@@ -114,20 +143,19 @@ function directly, use the ucontext functions to run it in its own context.
 When the thread context returns, execution should resume from where the calling
 context left off in `kfc_create`.  (This should not require a lot of code once
 you understand ucontext.)  Allocate space for the stack if none is provided,
-and pass the provided argument on to the thread function.  Note: yes, it will
-be necessary to type-cast a function pointer here, but don't make a habit of
-it!
+and pass the provided argument on to the thread function.  Note: although you
+should not normally type-cast a function pointer, it will be necessary here.
 
 When the test succeeds, it will print the text `success!`.  If you do not see
-this message, then the process exited prior to successfully completing the
-test.
+this message, then the process exited too early and did not successfully
+complete the test.
 
-Note: You will only be doing cooperative, many-to-one multithreading to start
-with (i.e. `kfc_init(1, 0)`), so you do not need to implement support for
-additional kernel threads until later, and you will only need to consider
-preemption if you do the bonus challenge.
+You will only be doing cooperative, many-to-one multithreading to start with
+(i.e. the initialization call will always be `kfc_init(1, 0)`), so you do not
+need to consider support for additional kernel threads until later, and you
+will only need to implement preemption if you do the bonus challenge.
 
-### test-self (10pts)
+## test-self (10pts)
 
 Update `kfc_create` so that each thread is assigned an integer thread ID upon
 creation, and make sure this is returned via the `ptid` parameter.  Implement
@@ -136,14 +164,15 @@ The main thread gets ID 0.  (Hint: keep track of the currently executing
 thread!  Be sure it gets updated when switching context or when a thread
 exits.)
 
-### test-fcfs (10pts)
+## test-fcfs (10pts)
 
 Update your code so that, instead of returning to the "parent" when a thread
-exits, the next thread to run is chosen by an FCFS policy.  A small queue
-implementation is provided for you to use if needed.  (Note that the queue code
+exits, the next thread to run is chosen by an FCFS policy.  When `kfc_create`
+is called, the newly created thread should still begin executing immediately.
+
+A simple queue implementation is provided for you to use if desired.  The queue
 is not synchronized internally, so you will need to treat it as "shared data"
-and synchronize accesses yourself once there are multiple kernel threads.) When
-`kfc_create` is called, the newly created thread should still execute first.
+when you implement support for multiple kernel threads in the "m2m" step.
 
 Hint: it may help to create an extra context which is not specific to any one
 thread.
@@ -151,24 +180,25 @@ thread.
 Note: implementing this step will change the behavior of test-create and
 test-self.  This is expected.  (Reason, for the curious: when the main thread
 returns, the process terminates and any remaining threads do not have a chance
-to complete.)  They will be fixed in the next step.
+to complete.)  These tests should start passing again after you complete the
+next step.
 
-### test-yield (10pts)
+## test-yield (10pts)
 
 Implement the `kfc_yield` function to enable cooperative multiprogramming.
-When a thread calls `kfc_yield`, your code should pass control to the ready
+When a thread calls `kfc_yield`, your library should switch to the ready
 thread which has been waiting the longest since becoming ready (i.e., FCFS).
-If no other thread is ready, control will return to the caller.  If this does
+If no other thread is ready, control should return to the caller.  If this does
 not end up being a particularly simple function, this would be a good time to
 think about refactoring or asking for a hint on simplifying your approach.
 
-#### test-yield2 (5pts)
+## test-yield2 (5pts)
 
 Speaking of simplifying code, update the `kfc_create` function so that new
 threads are not immediately activated but take their rightful place at the back
 of the line.
 
-### test-exit (5pts)
+## test-exit (5pts)
 
 Implement the `kfc_exit` function, which should terminate the calling thread
 and schedule the next thread in FCFS order.  Returning from the thread main
@@ -177,28 +207,26 @@ returned by the function.  Again, this will end up being a simple function if
 your design is in good shape; if not, ask for some direction.
 
 If `kfc_exit` is called from the process's initial main thread, the other
-threads should continue to run until the process exits explicitly with a call
-to `exit`, which the OS will handle for you.  (This is the same way that
-`pthread_exit` would behave for kernel threads, plus it's the easiest approach
-to implement.)
+threads should continue to run.  (This is the same way that `pthread_exit`
+would behave for kernel threads, plus it's the easiest approach to implement.)
 
-### test-join (5pts)
+## test-join (5pts)
 
 Implement the `kfc_join` function, which retrieves the value returned by the
-specified thread when it exited and cleans up the thread's resources, and
-*blocks* if that thread is still running.  Remember that a thread or process
-which is blocking should not be place in the ready queue until the event it is
-waiting for has taken place.  In other words, calling `kfc_yield` in a `while`
-loop is not blocking.  (Hint: you will need to modify `kfc_exit` to do this
-correctly.)
+specified thread when it exited and cleans up that thread's resources.  This
+function should *block* if that thread is still running.  Since this is the first time you are implementing blocking, remember that a
+thread or process which is blocking should not be placed in the ready queue
+until the event it is waiting for has taken place.  In other words, calling
+`kfc_yield` in a `while` loop is not blocking.  (Hint: you will need to modify
+`kfc_exit` to do this correctly.)
 
-### test-sem\* (15pts)
+## test-sem\* (15pts)
 
 Implement semaphores.  These should behave like the implementation given in the
 textbook: if the thread needs to wait, it should block as with `kfc_join`.
 Note that this should block only the *user* thread, not the kernel thread!
 
-### test-m2m (5pts)
+## test-m2m (5pts)
 
 Time to start using that first parameter to `kfc_init`.  Add support for multiple
 kernel threads (many-to-many threading model) to the KFC library.  Up to this
@@ -219,19 +247,21 @@ For the simplest implementation, you will want to use the following approach:
   there are not multiple ready queues, but it may be helpful to note the
   similarity nevertheless.)
 
-#### test-m2m-pc (5pts)
+## test-m2m-pc (5pts)
 
 Here's a bounded buffer implementation using KFC.  It should hit 100000
 different checkpoints.  You can check that all the lines are unique with:
 
-    $ ./test-m2m-pc |& sort -u | wc -l
-    100001
+```interactive
+$ |>./test-m2m-pc |& sort -u | wc -l
+100001
+```
 
 (100001 lines: 100000 checkpoints plus the success message)
 
-## Bonus challenge
+# Bonus challenge
 
-### test-preempt
+## test-preempt
 
 Time to start using that second parameter to `kfc_init`.  Add preemption to
 turn your library into a round-robin scheduler instead of FCFS.  This step will
@@ -246,12 +276,12 @@ specifying the target thread.
 If you want help digging through the related man pages, feel free to ask.
 
 (Alternatives would be to use the `ualarm` or `setitimer` functions, which
-allow you to deliver a signal to a *process*.  However, as we saw in class, it
-is not always defined as to which specific *thread* receives a signal that was
-sent to a multithreaded process.)
+allow you to deliver a signal to a *process*.  However, as we discussed in
+class, it is not always defined which specific *thread* will receive a signal
+that was sent to a multithreaded process.)
 
 
-## Due date and extra credit opportunity
+# Due date and extra credit opportunity
 
 This project can be challenging but is very rewarding!  In order to make sure
 there is ample time to complete it, the project will be due April 7.  In order

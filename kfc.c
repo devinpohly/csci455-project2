@@ -31,9 +31,9 @@ kfc_init(int kthreads, int quantum_us)
  * needed again.  (In other words, just clean up and don't worry about the
  * consequences.)
  *
- * I won't test this function, since it wasn't part of the original assignment;
- * it is provided as a convenience to you if you are using Valgrind to test
- * (which I heartily encourage).
+ * I won't be testing this function specifically, but it is provided as a
+ * convenience to you if you are using Valgrind to check your code, which I
+ * always encourage.
  */
 void
 kfc_teardown(void)
