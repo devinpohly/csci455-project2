@@ -29,7 +29,7 @@ apparently will not allow a public repo thus forked to be made private.
 Instead, create your own private repository (don't initialize with a README),
 then clone mine to a local computer, and push from there to yours:
 
-    $ git clone -o upstream https://github.com:devinpohly/csci455-project2.git
+    $ git clone -o upstream https://github.com/devinpohly/csci455-project2.git
     $ cd csci455-project2
     $ git remote add origin git@github.com:your-username/your-repo-name.git
     $ git push -u origin main
