@@ -126,7 +126,7 @@ changes from my repository using:
 # Steps/tests
 
 Each step comes with one or more test programs that should output
-"success!"\ when run.  Additional tests or updates to the existing ones may be
+"let's go!"\ when run.  Additional tests or updates to the existing ones may be
 added later.
 
 You can run all of the tests in order by using the `test` target from the
@@ -146,7 +146,7 @@ you understand ucontext.)  Allocate space for the stack if none is provided,
 and pass the provided argument on to the thread function.  Note: although you
 should not normally type-cast a function pointer, it will be necessary here.
 
-When the test succeeds, it will print the text `success!`.  If you do not see
+When the test succeeds, it will print the text `let's go!`.  If you do not see
 this message, then the process exited too early and did not successfully
 complete the test.
 

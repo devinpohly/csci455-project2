@@ -67,7 +67,7 @@ VERIFY(int n)
 		_test_nope++;
 	}
 	if (!_test_nope) {
-		DPRINTF("success!\n");
+		DPRINTF("\e[30;42;1m\e[Klet's go!\e[0m\n");
 		exit(0);
 	}
 
